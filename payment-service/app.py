@@ -1,39 +1,66 @@
 from flask import Flask, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///payments.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# In-memory data store
-payments = []
-next_id = 1
+db = SQLAlchemy(app)
 
-@app.route('/payments', methods=['GET'])
+
+# Define Payment model
+class Payment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+
+    def to_dict(self):
+        return {"id": self.id, "amount": self.amount, "status": self.status}
+
+
+# Initialize database and seed data
+def initialize_database():
+    with app.app_context():
+        db.create_all()
+
+        count = Payment.query.count()
+        if count == 0:
+            db.session.add(Payment(amount=100.00, status="SUCCESS"))
+            db.session.add(Payment(amount=250.00, status="SUCCESS"))
+            db.session.add(Payment(amount=75.50, status="SUCCESS"))
+            db.session.commit()
+
+
+@app.route("/payments", methods=["GET"])
 def get_payments():
-    return jsonify(payments), 200
+    payments = Payment.query.all()
+    return jsonify([payment.to_dict() for payment in payments]), 200
 
-@app.route('/payments/<int:payment_id>', methods=['GET'])
+
+@app.route("/payments/<int:payment_id>", methods=["GET"])
 def get_payment(payment_id):
-    for payment in payments:
-        if payment['id'] == payment_id:
-            return jsonify(payment), 200
-    return jsonify({'error': 'Payment not found'}), 404
+    payment = Payment.query.get(payment_id)
 
-@app.route('/payments/process', methods=['POST'])
+    if not payment:
+        return jsonify({"error": "Payment not found"}), 404
+
+    return jsonify(payment.to_dict()), 200
+
+
+@app.route("/payments/process", methods=["POST"])
 def process_payment():
-    global next_id
-
     data = request.get_json()
-    if not data or 'amount' not in data:
-        return jsonify({'error': 'Amount is required'}), 400
 
-    payment = {
-        'id': next_id,
-        'amount': data['amount'],
-        'status': 'SUCCESS'
-    }
-    next_id += 1
-    payments.append(payment)
+    if not data or "amount" not in data:
+        return jsonify({"error": "Amount is required"}), 400
 
-    return jsonify(payment), 201
+    payment = Payment(amount=data["amount"], status="SUCCESS")
+    db.session.add(payment)
+    db.session.commit()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8083)
+    return jsonify(payment.to_dict()), 201
+
+
+if __name__ == "__main__":
+    initialize_database()
+    app.run(host="0.0.0.0", port=8083)

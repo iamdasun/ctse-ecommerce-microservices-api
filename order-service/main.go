@@ -3,27 +3,46 @@ package main
 import (
 	"net/http"
 	"strconv"
-	"sync"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type Order struct {
-	ID     int    `json:"id"`
+	ID     int    `gorm:"primaryKey" json:"id"`
 	Status string `json:"status"`
 }
 
-var (
-	orders    = []Order{}
-	nextID    = 1
-	orderLock sync.Mutex
-)
+var db *gorm.DB
+
+func initDatabase() {
+	var err error
+	db, err = gorm.Open(sqlite.Open("orders.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	db.AutoMigrate(&Order{})
+
+	var count int64
+	db.Model(&Order{}).Count(&count)
+	if count == 0 {
+		db.Create(&Order{Status: "PENDING"})
+		db.Create(&Order{Status: "PENDING"})
+		db.Create(&Order{Status: "PENDING"})
+	}
+}
 
 func main() {
+	initDatabase()
+
 	r := gin.Default()
 
 	// GET /orders - Return all orders
 	r.GET("/orders", func(c *gin.Context) {
+		var orders []Order
+		db.Find(&orders)
 		c.JSON(http.StatusOK, orders)
 	})
 
@@ -35,26 +54,21 @@ func main() {
 			return
 		}
 
-		for _, order := range orders {
-			if order.ID == id {
-				c.JSON(http.StatusOK, order)
-				return
-			}
+		var order Order
+		result := db.First(&order, id)
+
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+			return
 		}
-		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+
+		c.JSON(http.StatusOK, order)
 	})
 
 	// POST /orders - Create new order with PENDING status
 	r.POST("/orders", func(c *gin.Context) {
-		orderLock.Lock()
-		defer orderLock.Unlock()
-
-		order := Order{
-			ID:     nextID,
-			Status: "PENDING",
-		}
-		nextID++
-		orders = append(orders, order)
+		order := Order{Status: "PENDING"}
+		db.Create(&order)
 
 		c.JSON(http.StatusCreated, order)
 	})
