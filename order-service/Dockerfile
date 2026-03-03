@@ -1,6 +1,6 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.21 AS builder
 
-RUN apk add --no-cache gcc musl-dev
+RUN apt-get update && apt-get install -y gcc libc6-dev
 
 WORKDIR /app
 
@@ -10,9 +10,9 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -o order-service .
 
-FROM alpine:latest
+FROM debian:bookworm-slim
 
-RUN apk add --no-cache ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
