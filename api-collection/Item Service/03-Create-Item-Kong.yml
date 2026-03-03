@@ -1,0 +1,24 @@
+info:
+  name: Create Item (via Kong)
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}/api/items"
+  auth: inherit
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    mode: raw
+    raw: |-
+      {
+        "name": "Tablet"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

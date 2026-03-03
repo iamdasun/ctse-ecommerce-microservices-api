@@ -1,0 +1,26 @@
+opencollection: 1.0.0
+
+info:
+  name: CTSE E-Commerce Microservices API
+  description: API collection for Item, Order, and Payment microservices
+
+request:
+  variables:
+    - key: base_url
+      value: http://localhost:8000
+    - key: direct_base_url
+      value: http://localhost
+    - key: item_port
+      value: "8081"
+    - key: order_port
+      value: "8082"
+    - key: payment_port
+      value: "8083"
+    - key: kong_admin_port
+      value: "8001"
+
+bundled: false
+extensions:
+  ignore:
+    - node_modules
+    - .git

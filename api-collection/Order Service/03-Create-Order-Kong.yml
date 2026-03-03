@@ -1,0 +1,21 @@
+info:
+  name: Create Order (via Kong)
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}/api/orders"
+  auth: inherit
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    mode: raw
+    raw: "{}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

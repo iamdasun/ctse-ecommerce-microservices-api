@@ -1,0 +1,21 @@
+info:
+  name: Create Order (Direct)
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{direct_base_url}}:{{order_port}}/orders"
+  auth: inherit
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    mode: raw
+    raw: "{}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,24 @@
+info:
+  name: Process Payment (via Kong)
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}/api/payments/process"
+  auth: inherit
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    mode: raw
+    raw: |-
+      {
+        "amount": 199.99
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
