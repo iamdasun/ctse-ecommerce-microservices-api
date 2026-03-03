@@ -14,7 +14,9 @@ http:
     mode: raw
     raw: |-
       {
-        "name": "Monitor"
+        "name": "Gaming Mouse",
+        "price": 49.99,
+        "description": "RGB gaming mouse with 6 buttons"
       }
 
 settings:

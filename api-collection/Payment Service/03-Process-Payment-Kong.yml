@@ -14,7 +14,11 @@ http:
     mode: raw
     raw: |-
       {
-        "amount": 199.99
+        "amount": 199.99,
+        "orderId": 1,
+        "cardNumber": "4111111111111111",
+        "expiryDate": "12/26",
+        "cvv": "123"
       }
 
 settings:

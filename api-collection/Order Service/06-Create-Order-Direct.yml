@@ -14,7 +14,9 @@ http:
     mode: raw
     raw: |-
       {
-        "status": "PENDING"
+        "itemId": 1,
+        "quantity": 2,
+        "userId": "user123"
       }
 
 settings:
