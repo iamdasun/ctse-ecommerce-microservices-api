@@ -5,14 +5,17 @@ info:
 
 http:
   method: POST
-  url: "{{base_url}}/api/orders"
+  url: "{{base_url}}/orders"
   auth: inherit
   headers:
     - key: Content-Type
       value: application/json
   body:
     mode: raw
-    raw: "{}"
+    raw: |-
+      {
+        "status": "PENDING"
+      }
 
 settings:
   encodeUrl: true

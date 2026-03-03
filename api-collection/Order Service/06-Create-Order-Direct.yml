@@ -12,7 +12,10 @@ http:
       value: application/json
   body:
     mode: raw
-    raw: "{}"
+    raw: |-
+      {
+        "status": "PENDING"
+      }
 
 settings:
   encodeUrl: true
